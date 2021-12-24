@@ -2,17 +2,20 @@ package com.navikenz.codingexercises.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.navikenz.codingexercises.dto.NameContactDTO;
-import com.navikenz.codingexercises.model.Comment;
 import com.navikenz.codingexercises.model.Contact;
 import com.navikenz.codingexercises.model.IdentifiedEntity;
 import com.navikenz.codingexercises.repository.CommentRepository;
@@ -31,10 +34,22 @@ public class ContactServiceImpl implements ContactService {
 	CommentRepository commentRepo;
 	
 	@Override
-	public List<NameContactDTO> listAll() {
-		List<NameContactDTO> allContacts = contactRepo.findAllIdAndName();
-		allContacts.sort(Comparator.comparing(e -> e.getFullName()));
-		return allContacts;
+	public Map<String, Object> listAll(int page, int size) {
+		
+		List<NameContactDTO> contacts = new ArrayList<>();
+		Pageable paging = PageRequest.of(page, size);
+		
+		Page<NameContactDTO> pageContacts = contactRepo.findAllIdAndName(paging);
+		
+		contacts = pageContacts.getContent();
+		
+		Map<String, Object> response = new HashMap<>();
+		response.put("contacts", contacts);
+		response.put("currentPage", pageContacts.getNumber());
+		response.put("totalItems", pageContacts.getTotalElements());
+		response.put("totalPages", pageContacts.getTotalPages());
+		
+		return response;
 	}
 
 	@Override
@@ -56,17 +71,21 @@ public class ContactServiceImpl implements ContactService {
 	}
 
 	@Override
-	public List<NameContactDTO> findByName(String name) {
-		Set<NameContactDTO> contacts = contactRepo.findAllNamesMatched(name);
-		List<Comment> comments = commentRepo.findByUserIgnoreCaseContaining(name);
-		comments.stream().forEach(c -> {
-			Contact contact = contactRepo.findById(c.getContact().getId()).get();
-			NameContactDTO nameCon = new NameContactDTO(contact.getId(), contact.getFirstName(), contact.getLastName());
-			contacts.add(nameCon);
-		});
-		List<NameContactDTO> allContacts = new ArrayList<>(contacts);
-		allContacts.sort(Comparator.comparing(e -> e.getFullName()));
-		return allContacts;
+	public Map<String, Object> findByName(String name, int page, int size) {
+		
+		List<NameContactDTO> contacts = new ArrayList<>();
+		Pageable paging = PageRequest.of(page, size);
+		
+		Page<NameContactDTO> pageContacts = contactRepo.findAllNamesMatched(name, paging);
+		contacts = pageContacts.getContent();
+		
+		Map<String, Object> response = new HashMap<>();
+		response.put("contacts", contacts);
+		response.put("currentPage", pageContacts.getNumber());
+		response.put("totalItems", pageContacts.getTotalElements());
+		response.put("totalPages", pageContacts.getTotalPages());
+		
+		return response;
 	}
 
 	@Override
