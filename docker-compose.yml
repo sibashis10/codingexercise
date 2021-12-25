@@ -1,0 +1,21 @@
+version: "3"
+services:
+  contact-api:
+    image: contact-api
+    ports:
+      - "8080:8080"
+    networks:
+      - navikenz-network
+    depends_on:
+      - mysqldb
+
+  mysqldb:
+    image: mysql:8
+    networks:
+      - navikenz-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=navikenz
+
+networks:
+  navikenz-network:
