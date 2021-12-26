@@ -29,7 +29,6 @@ public class NERModel {
 		
 		sentences.stream().forEach(sentence -> {
 			String rawText = classifier.classifyToString(sentence, "tabbedEntities", false);
-			System.out.println(rawText);
 			Map<String, String> eMap = Arrays.asList(rawText.split("\n"))
 				.stream()
 				.map(row -> row.split("\t"))
