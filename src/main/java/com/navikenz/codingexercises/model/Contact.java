@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Email;
@@ -72,11 +73,13 @@ public class Contact implements Serializable {
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = ALL, orphanRemoval = true)
 	@JoinColumn(name = "contact_id")
+	@OrderBy(value = "id asc")
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private Set<Comment> comments;
 	
 	@OneToMany(fetch = FetchType.LAZY, cascade = ALL, orphanRemoval = true)
 	@JoinColumn(name = "contact_id", referencedColumnName = "id")
+	@OrderBy(value = "id asc")
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private Set<IdentifiedEntity> identifiedEntities;
 
